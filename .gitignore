@@ -30,8 +30,11 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
-.env*
+# env files — only block local secret files, allow .env.example
+.env.local
+.env.*.local
+# Uncomment the next line if you want to block ALL .env files:
+# .env*
 
 # vercel
 .vercel
