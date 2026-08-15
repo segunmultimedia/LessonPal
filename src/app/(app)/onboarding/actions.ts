@@ -2,7 +2,7 @@
 
 import { z } from 'zod/v4';
 import { db } from '@/lib/db';
-import { schools, teacherProfiles, teacherClassSubjects } from '@/lib/db/schema';
+import { teacherProfiles, teacherClassSubjects } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
 
@@ -19,7 +19,7 @@ const onboardingSchema = z.object({
   }, "Please assign at least one class and subject."),
 });
 
-export async function completeOnboarding(prevState: any, formData: FormData) {
+export async function completeOnboarding(prevState: unknown, formData: FormData) {
   try {
     const session = await auth();
     if (!session?.user?.id) {

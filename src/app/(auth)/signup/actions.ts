@@ -13,7 +13,7 @@ const signUpSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
-export async function signUpUser(prevState: any, formData: FormData) {
+export async function signUpUser(prevState: unknown, formData: FormData) {
   try {
     const rawData = Object.fromEntries(formData.entries());
     const parsed = signUpSchema.safeParse(rawData);
@@ -63,9 +63,9 @@ export async function signUpUser(prevState: any, formData: FormData) {
     // Redirect handled client-side on success to bypass Next.js Action redirect bugs
     return { success: true };
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Sign up error:', error);
-    if (error.name === 'CredentialsSignin') {
+    if (error instanceof Error && error.name === 'CredentialsSignin') {
         return { success: false, error: 'Failed to sign in after registration.' };
     }
     return { success: false, error: 'An unexpected error occurred during registration. Please try again.' };

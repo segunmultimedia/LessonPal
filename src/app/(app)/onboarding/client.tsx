@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { completeOnboarding } from './actions';
 
-export function OnboardingClient({ curricula, classes, subjects, terms }: any) {
+export function OnboardingClient({ curricula, classes, subjects, terms }: { curricula: { id: string, name: string, version: string | null }[], classes: { id: string, name: string }[], subjects: { id: string, name: string }[], terms: { id: string, name: string }[] }) {
   const router = useRouter();
   const { update } = useSession();
   
@@ -86,7 +86,7 @@ export function OnboardingClient({ curricula, classes, subjects, terms }: any) {
               className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 outline-none"
             >
               <option value="">Select curriculum...</option>
-              {curricula.map((c: any) => (
+              {curricula.map((c: { id: string, name: string, version: string | null }) => (
                 <option key={c.id} value={c.id}>{c.name} ({c.version})</option>
               ))}
             </select>
@@ -97,13 +97,13 @@ export function OnboardingClient({ curricula, classes, subjects, terms }: any) {
             <div className="flex flex-col sm:flex-row gap-3 mb-4">
               <select value={selectedClass} onChange={e => setSelectedClass(e.target.value)} className="w-full sm:flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
                 <option value="">Select Class...</option>
-                {classes.map((c: any) => (
+                {classes.map((c: { id: string, name: string }) => (
                   <option key={c.id} value={c.id}>{c.name}</option>
                 ))}
               </select>
               <select value={selectedSubject} onChange={e => setSelectedSubject(e.target.value)} className="w-full sm:flex-1 px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none">
                 <option value="">Select Subject...</option>
-                {subjects.map((s: any) => (
+                {subjects.map((s: { id: string, name: string }) => (
                   <option key={s.id} value={s.id}>{s.name}</option>
                 ))}
               </select>
@@ -115,8 +115,8 @@ export function OnboardingClient({ curricula, classes, subjects, terms }: any) {
             {assignments.length > 0 ? (
               <ul className="space-y-2">
                 {assignments.map(a => {
-                  const cName = classes.find((c:any) => c.id === a.classLevelId)?.name;
-                  const sName = subjects.find((s:any) => s.id === a.subjectId)?.name;
+                  const cName = classes.find((c: { id: string, name: string }) => c.id === a.classLevelId)?.name;
+                  const sName = subjects.find((s: { id: string, name: string }) => s.id === a.subjectId)?.name;
                   return (
                     <li key={`${a.classLevelId}-${a.subjectId}`} className="flex items-center justify-between bg-white dark:bg-gray-900 p-2.5 rounded-lg border shadow-sm">
                       <span className="text-sm font-medium">{cName} — <span className="text-muted-foreground">{sName}</span></span>
@@ -166,7 +166,7 @@ export function OnboardingClient({ curricula, classes, subjects, terms }: any) {
                 className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-gray-800 focus:ring-2 focus:ring-blue-500 outline-none"
               >
                 <option value="">Select term...</option>
-                {terms.map((t: any) => (
+                {terms.map((t: { id: string, name: string }) => (
                   <option key={t.id} value={t.id}>{t.name}</option>
                 ))}
               </select>

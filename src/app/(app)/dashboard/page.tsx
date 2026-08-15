@@ -20,6 +20,7 @@ export default async function DashboardPage() {
           <div className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-900 rounded-2xl p-8 max-w-md">
             <h2 className="text-2xl font-bold text-red-700 dark:text-red-400 mb-4">Session Corrupted</h2>
             <p className="text-muted-foreground mb-6">Your user profile could not be found in the database. This typically happens if the local database was wiped while you still had an active login session.</p>
+            {/* eslint-disable-next-line @next/next/no-html-link-for-pages */}
             <a 
               href="/api/auth/signout" 
               className="inline-block bg-red-600 hover:bg-red-700 text-white font-medium px-6 py-2.5 rounded-lg transition-colors"

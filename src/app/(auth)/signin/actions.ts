@@ -9,7 +9,7 @@ const signInSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
-export async function signInUser(prevState: any, formData: FormData) {
+export async function signInUser(prevState: unknown, formData: FormData) {
   try {
     const rawData = Object.fromEntries(formData.entries());
     const parsed = signInSchema.safeParse(rawData);

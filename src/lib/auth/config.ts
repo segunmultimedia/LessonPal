@@ -18,7 +18,7 @@ export const authConfig: NextAuthConfig = {
       
       // If user is logged in, check onboarding status
       if (isLoggedIn) {
-        // @ts-ignore
+
         const hasCompletedOnboarding = auth.user.onboardingCompleted === true || String(auth.user.onboardingCompleted) === 'true';
         
         // Prevent access to app routes if onboarding is not complete

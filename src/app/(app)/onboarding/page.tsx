@@ -1,6 +1,6 @@
 import { db } from '@/lib/db';
-import { curricula, academicLevels, classLevels, subjects, academicTerms } from '@/lib/db/schema';
-import { eq, asc } from 'drizzle-orm';
+import { curricula, classLevels, subjects, academicTerms } from '@/lib/db/schema';
+import { asc } from 'drizzle-orm';
 import { OnboardingClient } from './client';
 import { auth } from '@/lib/auth';
 import { redirect } from 'next/navigation';

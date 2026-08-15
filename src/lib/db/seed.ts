@@ -2,7 +2,7 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { config } from 'dotenv';
 import { 
-  countries, curricula, academicLevels, classLevels, subjects, classLevelSubjects, academicTerms 
+  countries, curricula, academicLevels, classLevels, subjects, academicTerms 
 } from './schema/curriculum';
 import { eq } from 'drizzle-orm';
 import { join } from 'path';
