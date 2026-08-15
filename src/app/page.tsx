@@ -7,7 +7,7 @@ export default function LandingPage() {
       <header className="border-b border-border/40 backdrop-blur-sm bg-white/80 dark:bg-gray-950/80 sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded bg-gradient-to-br from-blue-600 to-indigo-600 flex items-center justify-center">
               <span className="text-white font-bold text-sm">LP</span>
             </div>
             <span className="font-semibold text-lg tracking-tight">LessonPal</span>
@@ -21,7 +21,7 @@ export default function LandingPage() {
             </Link>
             <Link
               href="/signup"
-              className="text-sm font-medium bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-2 rounded-lg hover:opacity-90 transition-opacity shadow-sm"
+              className="text-sm font-medium bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-2 rounded hover:opacity-90 transition-opacity shadow-sm"
             >
               Get started
             </Link>
@@ -32,7 +32,7 @@ export default function LandingPage() {
       {/* Hero */}
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         <section className="pt-20 pb-16 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-medium mb-6">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-medium mb-6">
             <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
             Built for the Ghana NaCCA Curriculum
           </div>
@@ -49,13 +49,13 @@ export default function LandingPage() {
           <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link
               href="/signup"
-              className="w-full sm:w-auto text-center bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded-xl font-medium hover:opacity-90 transition-opacity shadow-lg shadow-blue-500/25"
+              className="w-full sm:w-auto text-center bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-3 rounded font-medium hover:opacity-90 transition-opacity shadow-lg shadow-blue-500/25"
             >
               Start using LessonPal
             </Link>
             <Link
               href="/signin"
-              className="w-full sm:w-auto text-center border border-border px-8 py-3 rounded-xl font-medium hover:bg-accent transition-colors"
+              className="w-full sm:w-auto text-center border border-border px-8 py-3 rounded font-medium hover:bg-accent transition-colors"
             >
               I already have an account
             </Link>
@@ -89,7 +89,7 @@ export default function LandingPage() {
             ].map((feature) => (
               <div
                 key={feature.title}
-                className="p-6 rounded-2xl bg-white dark:bg-gray-900 border border-border/50 hover:border-blue-200 dark:hover:border-blue-800 transition-colors shadow-sm"
+                className="p-6 rounded-xl bg-white dark:bg-gray-900 border border-border/50 hover:border-blue-200 dark:hover:border-blue-800 transition-colors shadow-sm"
               >
                 <div className="text-3xl mb-4">{feature.icon}</div>
                 <h3 className="font-semibold text-base mb-2">{feature.title}</h3>

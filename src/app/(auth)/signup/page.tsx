@@ -45,7 +45,7 @@ export default function SignUpPage() {
             type="text"
             required
             placeholder="Kwame Asante"
-            className="w-full px-3.5 py-2.5 rounded-lg border border-input bg-background text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-shadow"
+            className="w-full px-3.5 py-3 rounded border border-input bg-background text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring focus:border-ring transition-shadow"
           />
         </div>
         <div>
@@ -58,7 +58,7 @@ export default function SignUpPage() {
             type="email"
             required
             placeholder="you@example.com"
-            className="w-full px-3.5 py-2.5 rounded-lg border border-input bg-background text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-shadow"
+            className="w-full px-3.5 py-3 rounded border border-input bg-background text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring focus:border-ring transition-shadow"
           />
         </div>
         <div>
@@ -71,13 +71,13 @@ export default function SignUpPage() {
             type="password"
             required
             placeholder="At least 8 characters"
-            className="w-full px-3.5 py-2.5 rounded-lg border border-input bg-background text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 transition-shadow"
+            className="w-full px-3.5 py-3 rounded border border-input bg-background text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring focus:border-ring transition-shadow"
           />
         </div>
         <button
           type="submit"
           disabled={isPending}
-          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2.5 rounded-lg font-medium text-sm hover:opacity-90 transition-opacity shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
+          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded font-medium text-sm hover:opacity-90 transition-opacity shadow-sm disabled:opacity-50 flex items-center justify-center gap-2 mt-2"
         >
           {isPending ? 'Creating account...' : 'Create account'}
         </button>
