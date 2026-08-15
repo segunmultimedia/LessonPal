@@ -1,57 +1,47 @@
 import type { NextAuthConfig } from 'next-auth';
-import Credentials from 'next-auth/providers/credentials';
-import Google from 'next-auth/providers/google';
-import { z } from 'zod/v4';
-
-const loginSchema = z.object({
-  email: z.email(),
-  password: z.string().min(8),
-});
 
 export const authConfig: NextAuthConfig = {
   pages: {
     signIn: '/signin',
   },
-  providers: [
-    Google({
-      clientId: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    }),
-    Credentials({
-      name: 'credentials',
-      credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' },
-      },
-      async authorize(credentials) {
-        const parsed = loginSchema.safeParse(credentials);
-        if (!parsed.success) return null;
-        
-        // TODO: Phase 2 - implement actual database lookup and bcrypt verification
-        // For now, return null (no users exist yet)
-        return null;
-      },
-    }),
-  ],
+  providers: [], // Providers are injected in index.ts to avoid Edge runtime issues with DB/bcrypt
   callbacks: {
     authorized({ auth, request: { nextUrl } }) {
       const isLoggedIn = !!auth?.user;
+      const isOnboarding = nextUrl.pathname.startsWith('/onboarding');
       const isOnApp = nextUrl.pathname.startsWith('/dashboard') ||
                       nextUrl.pathname.startsWith('/lessons') ||
                       nextUrl.pathname.startsWith('/classes') ||
                       nextUrl.pathname.startsWith('/carry-overs') ||
                       nextUrl.pathname.startsWith('/history') ||
-                      nextUrl.pathname.startsWith('/settings') ||
-                      nextUrl.pathname.startsWith('/onboarding');
+                      nextUrl.pathname.startsWith('/settings');
       
-      if (isOnApp) {
-        if (isLoggedIn) return true;
-        return false; // Redirect to signin
+      // If user is logged in, check onboarding status
+      if (isLoggedIn) {
+        // @ts-ignore
+        const hasCompletedOnboarding = auth.user.onboardingCompleted === true || String(auth.user.onboardingCompleted) === 'true';
+        
+        // Prevent access to app routes if onboarding is not complete
+        if (isOnApp && !hasCompletedOnboarding) {
+          return Response.redirect(new URL('/onboarding', nextUrl));
+        }
+        
+        // Prevent access to onboarding if already complete
+        if (isOnboarding && hasCompletedOnboarding) {
+          return Response.redirect(new URL('/dashboard', nextUrl));
+        }
+
+        // Prevent access to landing and auth pages if logged in
+        if (nextUrl.pathname === '/' || nextUrl.pathname === '/signin' || nextUrl.pathname === '/signup') {
+          return Response.redirect(new URL('/dashboard', nextUrl));
+        }
+        
+        return true;
       }
       
-      // Redirect logged-in users away from auth pages
-      if (isLoggedIn && (nextUrl.pathname === '/signin' || nextUrl.pathname === '/signup')) {
-        return Response.redirect(new URL('/dashboard', nextUrl));
+      // Not logged in
+      if (isOnApp || isOnboarding) {
+        return false; // Redirects to signin
       }
       
       return true;
@@ -59,13 +49,21 @@ export const authConfig: NextAuthConfig = {
     session({ session, token }) {
       if (token.sub) {
         session.user.id = token.sub;
+        session.user.onboardingCompleted = token.onboardingCompleted as boolean;
       }
       return session;
     },
-    jwt({ token, user }) {
+    jwt({ token, user, trigger, session }) {
       if (user) {
         token.sub = user.id;
+        token.onboardingCompleted = user.onboardingCompleted;
       }
+      
+      // Allow manual session updates (e.g. after completing onboarding)
+      if (trigger === 'update' && session?.onboardingCompleted !== undefined) {
+        token.onboardingCompleted = String(session.onboardingCompleted) === 'true';
+      }
+      
       return token;
     },
   },

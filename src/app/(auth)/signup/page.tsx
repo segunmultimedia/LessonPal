@@ -1,14 +1,40 @@
+'use client';
+
 import Link from 'next/link';
+import { useActionState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { signUpUser } from './actions';
+
+type ActionState = { error?: string; success: boolean; };
+const initialState: ActionState = {
+  success: false,
+};
 
 export default function SignUpPage() {
+  const router = useRouter();
+  const [state, formAction, isPending] = useActionState(signUpUser, initialState);
+
+  useEffect(() => {
+    if (state?.success) {
+      router.push('/dashboard'); // proxy will redirect to onboarding if needed
+      router.refresh();
+    }
+  }, [state?.success, router]);
+
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-border/50 shadow-xl shadow-black/5 p-8">
+    <div className="bg-white dark:bg-gray-900 rounded-2xl border border-border/50 shadow-xl shadow-black/5 p-6 sm:p-8">
       <div className="text-center mb-6">
         <h1 className="text-2xl font-bold tracking-tight">Create your account</h1>
         <p className="text-sm text-muted-foreground mt-1">Start managing your teaching progress</p>
       </div>
 
-      <form className="space-y-4">
+      <form action={formAction} className="space-y-4">
+        {state?.error && (
+          <div className="p-3 text-sm text-red-600 bg-red-50 dark:bg-red-900/20 rounded-lg">
+            {state.error}
+          </div>
+        )}
+
         <div>
           <label htmlFor="fullName" className="block text-sm font-medium mb-1.5">
             Full name
@@ -50,9 +76,10 @@ export default function SignUpPage() {
         </div>
         <button
           type="submit"
-          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2.5 rounded-lg font-medium text-sm hover:opacity-90 transition-opacity shadow-sm"
+          disabled={isPending}
+          className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-2.5 rounded-lg font-medium text-sm hover:opacity-90 transition-opacity shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
         >
-          Create account
+          {isPending ? 'Creating account...' : 'Create account'}
         </button>
       </form>
 

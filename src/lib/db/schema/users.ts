@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, boolean, timestamp, pgEnum, unique, index } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, text, boolean, timestamp, pgEnum, unique, index, integer } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 import { countries, curricula, classLevels, subjects, academicTerms } from './curriculum';
 
@@ -67,6 +67,7 @@ export const teacherClassSubjects = pgTable('teacher_class_subjects', {
   subjectId: uuid('subject_id').notNull().references(() => subjects.id),
   academicTermId: uuid('academic_term_id').references(() => academicTerms.id),
   academicYear: varchar('academic_year', { length: 9 }),
+  currentWeek: integer('current_week'),
   isActive: boolean('is_active').default(true),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
 }, (table) => {
