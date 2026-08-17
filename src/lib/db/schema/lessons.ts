@@ -2,6 +2,7 @@ import { pgTable, uuid, varchar, text, integer, boolean, timestamp, pgEnum, date
 import { relations } from 'drizzle-orm';
 import { teacherProfiles, teacherClassSubjects, users } from './users';
 import { classLevels, subjects, indicators } from './curriculum';
+import { curriculumLessons } from './curriculum_library';
 
 export const uploadStatusEnum = pgEnum('upload_status', ['pending', 'processing', 'extracted', 'review', 'approved', 'failed']);
 export const lessonStatusEnum = pgEnum('lesson_status', ['upcoming', 'today', 'in_progress', 'completed', 'partially_completed', 'not_taught', 'carried_forward', 'skipped']);
@@ -98,6 +99,7 @@ export const scheduledLessons = pgTable('scheduled_lessons', {
   extractionResultId: uuid('extraction_result_id').references(() => extractionResults.id),
   status: lessonStatusEnum('status').default('upcoming'),
   sortOrder: integer('sort_order').notNull().default(0),
+  curriculumLessonId: uuid('curriculum_lesson_id').references(() => curriculumLessons.id),
   originalLessonId: uuid('original_lesson_id').references((): AnyPgColumn => scheduledLessons.id),
   isCarryOver: boolean('is_carry_over').default(false),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
@@ -200,6 +202,10 @@ export const scheduledLessonsRelations = relations(scheduledLessons, ({ one, man
   extractionResult: one(extractionResults, {
     fields: [scheduledLessons.extractionResultId],
     references: [extractionResults.id],
+  }),
+  curriculumLesson: one(curriculumLessons, {
+    fields: [scheduledLessons.curriculumLessonId],
+    references: [curriculumLessons.id],
   }),
   originalLesson: one(scheduledLessons, {
     fields: [scheduledLessons.originalLessonId],

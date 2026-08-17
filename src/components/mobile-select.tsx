@@ -13,6 +13,7 @@ interface MobileSelectProps {
   placeholder?: string;
   options: MobileSelectOption[];
   value: string | string[]; // string for single, string[] for multiple
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onChange: (value: any) => void;
   multiple?: boolean;
   disabled?: boolean;

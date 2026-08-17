@@ -2,13 +2,16 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Plus } from 'lucide-react';
+import { Plus, Loader2 } from 'lucide-react';
+import { useFormStatus } from 'react-dom';
+import { startTeachingAction } from './teach/actions';
 
 export type DashboardSubject = {
   id: string;
   subjectName: string;
   termName: string;
   weekNumber: number | null;
+  hasStarted?: boolean;
 };
 
 export type DashboardClass = {
@@ -18,6 +21,19 @@ export type DashboardClass = {
   weekNumber: number | null;
   subjects: DashboardSubject[];
 };
+
+function StartTeachingButton({ hasStarted }: { hasStarted?: boolean }) {
+  const { pending } = useFormStatus();
+  return (
+    <button 
+      disabled={pending} 
+      type="submit"
+      className="w-full bg-gray-900 hover:bg-gray-800 dark:bg-gray-100 dark:hover:bg-gray-200 text-white dark:text-gray-900 font-medium py-3 rounded flex items-center justify-center gap-2 transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+    >
+      {pending ? <><Loader2 className="w-4 h-4 animate-spin" /> Loading...</> : (hasStarted ? 'Continue Teaching' : 'Start Teaching')}
+    </button>
+  );
+}
 
 interface DashboardTabsProps {
   classes: DashboardClass[];
@@ -112,13 +128,19 @@ export function DashboardTabs({ classes }: DashboardTabsProps) {
             <div key={subject.id} className="bg-white dark:bg-gray-900 border rounded-xl p-5 shadow-sm flex flex-col h-full hover:border-blue-500/50 transition-colors">
               <div className="mb-4">
                 <h3 className="text-lg font-bold tracking-tight text-foreground">{subject.subjectName}</h3>
-                {/* Optional: Show individual subject term/week if it differs, but keep it clean for now */}
+                
+                <div className="mt-4 bg-gray-50 dark:bg-gray-800/50 rounded p-3 border border-border/50">
+                  <p className="text-xs text-muted-foreground uppercase font-semibold mb-1">Where did I stop?</p>
+                  <p className="text-sm font-medium">
+                    {subject.termName} • Week {subject.weekNumber}
+                  </p>
+                </div>
               </div>
               
               <div className="mt-auto">
-                <button disabled className="w-full bg-gray-900/50 dark:bg-gray-100/50 text-white dark:text-gray-900 font-medium py-3 rounded opacity-70 cursor-not-allowed flex items-center justify-center gap-2 transition-opacity">
-                  Start Teaching
-                </button>
+                <form action={startTeachingAction.bind(null, subject.id)}>
+                  <StartTeachingButton hasStarted={subject.hasStarted} />
+                </form>
               </div>
             </div>
           ))}
