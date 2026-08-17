@@ -2,11 +2,12 @@
 
 import { z } from 'zod/v4';
 import { db } from '@/lib/db';
-import { teacherProfiles, teacherClassSubjects, curricula } from '@/lib/db/schema';
+import { teacherProfiles, teacherClassSubjects } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { auth } from '@/lib/auth';
+import { revalidatePath } from 'next/cache';
 
-const onboardingSchema = z.object({
+const addClassSchema = z.object({
   assignments: z.string().refine((val) => {
     try {
       const parsed = JSON.parse(val);
@@ -17,7 +18,7 @@ const onboardingSchema = z.object({
   }, "Please assign at least one class and subject."),
 });
 
-export async function completeOnboarding(prevState: unknown, formData: FormData) {
+export async function addClasses(prevState: unknown, formData: FormData) {
   try {
     const session = await auth();
     if (!session?.user?.id) {
@@ -25,7 +26,7 @@ export async function completeOnboarding(prevState: unknown, formData: FormData)
     }
 
     const rawData = Object.fromEntries(formData.entries());
-    const parsed = onboardingSchema.safeParse(rawData);
+    const parsed = addClassSchema.safeParse(rawData);
     
     if (!parsed.success) {
       const issue = parsed.error.issues[0];
@@ -36,28 +37,13 @@ export async function completeOnboarding(prevState: unknown, formData: FormData)
     const { assignments } = parsed.data;
     const assignmentsList: { classLevelId: string, subjectId: string, termId: string, weekNumber: number }[] = JSON.parse(assignments);
 
-    // Auto-assign the NaCCA curriculum (LessonPal currently only supports this)
-    const activeCurricula = await db.select().from(curricula).limit(1);
-    const defaultCurriculumId = activeCurricula[0]?.id;
-
-    if (!defaultCurriculumId) {
-       return { success: false, error: 'No curriculum found in the system. Contact support.' };
-    }
-
     await db.transaction(async (tx) => {
-      // Update Teacher Profile with curriculum and completion status
-      await tx.update(teacherProfiles)
-        .set({
-          curriculumId: defaultCurriculumId,
-          onboardingCompleted: true,
-        })
-        .where(eq(teacherProfiles.userId, session.user.id));
-
       // Get profile ID
       const profile = await tx.select().from(teacherProfiles).where(eq(teacherProfiles.userId, session.user.id));
+      if (!profile.length) throw new Error("Profile not found");
       const teacherProfileId = profile[0].id;
 
-      // Insert Class Subjects with their specific teaching position (term and week)
+      // Insert Class Subjects
       const valuesToInsert = assignmentsList.map(a => ({
         teacherProfileId,
         classLevelId: a.classLevelId,
@@ -70,10 +56,11 @@ export async function completeOnboarding(prevState: unknown, formData: FormData)
       await tx.insert(teacherClassSubjects).values(valuesToInsert).onConflictDoNothing();
     });
 
+    revalidatePath('/dashboard');
     return { success: true };
 
   } catch (error) {
-    console.error('Onboarding error:', error);
-    return { success: false, error: 'An unexpected error occurred during onboarding. Please try again.' };
+    console.error('Add classes error:', error);
+    return { success: false, error: 'An unexpected error occurred while adding the class. Please try again.' };
   }
 }

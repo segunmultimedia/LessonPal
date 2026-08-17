@@ -3,6 +3,8 @@ import { db } from '@/lib/db';
 import { teacherClassSubjects, teacherProfiles, classLevels, subjects, academicTerms } from '@/lib/db/schema';
 import { eq } from 'drizzle-orm';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
+import { Plus } from 'lucide-react';
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -68,7 +70,17 @@ export default async function DashboardPage() {
       </div>
 
       <section>
-        <h2 className="text-lg font-semibold mb-4">Your Lesson Today</h2>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
+          <h2 className="text-lg font-semibold">Your Classes</h2>
+          <div className="flex items-center gap-3">
+            <Link href="/dashboard/classes/manage" className="text-sm font-medium text-muted-foreground hover:text-foreground border border-transparent hover:border-border px-3 py-1.5 rounded transition">
+              Manage Classes
+            </Link>
+            <Link href="/dashboard/classes/new" className="bg-blue-600 text-white text-sm font-medium px-3 py-1.5 rounded flex items-center gap-1.5 hover:bg-blue-700 transition shadow-sm">
+              <Plus className="w-4 h-4" /> Add New Class
+            </Link>
+          </div>
+        </div>
         
         {assignments.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
