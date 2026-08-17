@@ -64,7 +64,7 @@ export async function startTeachingAction(teacherClassSubjectId: string) {
     .orderBy(curriculumLessons.lessonNumber);
 
   if (curriculumLessonsForWeek.length === 0) {
-    throw new Error('No curriculum content found for this week. Please check back later.');
+    redirect(`/dashboard/teach/missing?assignmentId=${assignment.id}`);
   }
 
   // For MVP, if we haven't completed any lessons this week, we pick lesson 1.
