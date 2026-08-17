@@ -5,6 +5,7 @@ import { eq } from 'drizzle-orm';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
+import { DashboardTabs, DashboardClass } from './client';
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -42,6 +43,7 @@ export default async function DashboardPage() {
   // Fetch the assigned class subjects with joined data
   const assignments = await db.select({
     id: teacherClassSubjects.id,
+    classLevelId: teacherClassSubjects.classLevelId,
     className: classLevels.name,
     subjectName: subjects.name,
     termName: academicTerms.name,
@@ -52,6 +54,33 @@ export default async function DashboardPage() {
   .leftJoin(subjects, eq(teacherClassSubjects.subjectId, subjects.id))
   .leftJoin(academicTerms, eq(teacherClassSubjects.academicTermId, academicTerms.id))
   .where(eq(teacherClassSubjects.teacherProfileId, profileId));
+
+  // Group assignments by classLevelId
+  const groupedClassesMap = new Map<string, DashboardClass>();
+  
+  for (const a of assignments) {
+    if (!a.classLevelId) continue;
+    
+    if (!groupedClassesMap.has(a.classLevelId)) {
+      groupedClassesMap.set(a.classLevelId, {
+        classLevelId: a.classLevelId,
+        className: a.className || 'Unknown Class',
+        termName: a.termName || 'Unknown Term',
+        weekNumber: a.weekNumber,
+        subjects: []
+      });
+    }
+    
+    const group = groupedClassesMap.get(a.classLevelId)!;
+    group.subjects.push({
+      id: a.id,
+      subjectName: a.subjectName || 'Unknown Subject',
+      termName: a.termName || 'Unknown Term',
+      weekNumber: a.weekNumber
+    });
+  }
+
+  const groupedClasses = Array.from(groupedClassesMap.values());
 
   const today = new Date().toLocaleDateString('en-GB', {
     weekday: 'long',
@@ -69,61 +98,7 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      <section>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
-          <h2 className="text-lg font-semibold">Your Classes</h2>
-          <div className="flex items-center gap-3">
-            <Link href="/dashboard/classes/manage" className="text-sm font-medium text-muted-foreground hover:text-foreground border border-transparent hover:border-border px-3 py-1.5 rounded transition">
-              Manage Classes
-            </Link>
-            <Link href="/dashboard/classes/new" className="bg-blue-600 text-white text-sm font-medium px-3 py-1.5 rounded flex items-center gap-1.5 hover:bg-blue-700 transition shadow-sm">
-              <Plus className="w-4 h-4" /> Add New Class
-            </Link>
-          </div>
-        </div>
-        
-        {assignments.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {assignments.map((assignment) => (
-              <div key={assignment.id} className="bg-white dark:bg-gray-900 border rounded-xl p-4 sm:p-5 shadow-sm flex flex-col h-full hover:border-blue-500/50 transition-colors">
-                <div className="mb-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <span className="bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 text-xs font-semibold px-2.5 py-0.5 rounded">
-                      {assignment.className}
-                    </span>
-                    <span className="text-sm font-medium text-muted-foreground">
-                      {assignment.termName} • Week {assignment.weekNumber}
-                    </span>
-                  </div>
-                  <h3 className="text-xl font-bold tracking-tight">{assignment.subjectName}</h3>
-                </div>
-                
-                <div className="mt-auto pt-4">
-                  <button disabled className="w-full bg-gray-900/50 dark:bg-gray-100/50 text-white dark:text-gray-900 font-medium py-3 rounded opacity-70 cursor-not-allowed flex items-center justify-center gap-2">
-                    Start Teaching <span className="text-xs bg-gray-800/20 px-2 py-0.5 rounded">(Coming soon)</span>
-                  </button>
-                  <div className="flex flex-col sm:flex-row gap-2 mt-2">
-                    <button disabled className="flex-1 text-sm border font-medium py-2.5 rounded text-muted-foreground opacity-50 cursor-not-allowed">
-                      Mark Complete
-                    </button>
-                    <button disabled className="flex-1 text-sm border font-medium py-2.5 rounded text-muted-foreground opacity-50 cursor-not-allowed">
-                      Reschedule
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="rounded-xl border border-dashed border-border p-12 text-center">
-            <div className="text-4xl mb-4">📚</div>
-            <h3 className="font-semibold text-lg mb-2">No subjects assigned yet</h3>
-            <p className="text-sm text-muted-foreground mb-6 max-w-md mx-auto">
-              Please complete your onboarding setup to tell us what classes and subjects you teach.
-            </p>
-          </div>
-        )}
-      </section>
+      <DashboardTabs classes={groupedClasses} />
     </div>
   );
 }
