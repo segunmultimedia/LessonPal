@@ -1,6 +1,6 @@
 import { auth } from '@/lib/auth';
 import { db } from '@/lib/db';
-import { scheduledLessons, teacherClassSubjects, classLevels, subjects, academicTerms } from '@/lib/db/schema';
+import { scheduledLessons, teacherClassSubjects, classLevels, subjects, academicTerms, indicators, contentStandards, subStrands, strands } from '@/lib/db/schema';
 import { curriculumLessons, lessonExercises, exerciseQuestions } from '@/lib/db/schema/curriculum_library';
 import { eq, and, asc } from 'drizzle-orm';
 import { redirect, notFound } from 'next/navigation';
@@ -38,9 +38,24 @@ export default async function TeachPage({ params }: { params: Promise<{ id: stri
     notFound();
   }
 
-  // Fetch curriculum lesson content
-  const [content] = await db.select()
+  // Fetch curriculum lesson content and hierarchy
+  const [content] = await db.select({
+    id: curriculumLessons.id,
+    topic: curriculumLessons.topic,
+    learningObjective: curriculumLessons.learningObjective,
+    whatToTeach: curriculumLessons.whatToTeach,
+    howToTeach: curriculumLessons.howToTeach,
+    activities: curriculumLessons.activities,
+    resources: curriculumLessons.resources,
+    durationMinutes: curriculumLessons.durationMinutes,
+    strandName: strands.name,
+    subStrandName: subStrands.name
+  })
     .from(curriculumLessons)
+    .leftJoin(indicators, eq(curriculumLessons.indicatorId, indicators.id))
+    .leftJoin(contentStandards, eq(indicators.contentStandardId, contentStandards.id))
+    .leftJoin(subStrands, eq(contentStandards.subStrandId, subStrands.id))
+    .leftJoin(strands, eq(subStrands.strandId, strands.id))
     .where(eq(curriculumLessons.id, lesson.curriculumLessonId))
     .limit(1);
 
@@ -54,17 +69,6 @@ export default async function TeachPage({ params }: { params: Promise<{ id: stri
     .where(eq(lessonExercises.curriculumLessonId, content.id))
     .orderBy(asc(lessonExercises.sortOrder));
 
-  const questionsData = await db.select()
-    .from(exerciseQuestions)
-    .where(
-      eq(
-        exerciseQuestions.exerciseId,
-        exercisesData.length > 0 ? exercisesData[0].id : '' // Hack to satisfy TS if no exercises, will fix below
-      )
-    )
-    .orderBy(asc(exerciseQuestions.sortOrder)); // This query is wrong, I'll fetch all questions for all exercises
-
-  // Let's fetch questions properly using an IN clause or looping
   const exercisesWithQuestions = await Promise.all(
     exercisesData.map(async (ex) => {
       const q = await db.select()
@@ -103,7 +107,19 @@ export default async function TeachPage({ params }: { params: Promise<{ id: stri
       <div className="space-y-6">
         {/* Today's Lesson */}
         <section className="bg-white dark:bg-gray-900 border rounded-2xl p-6 shadow-sm">
-          <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-4">Today&apos;s Lesson</h2>
+          {content.strandName && (
+            <div className="mb-4">
+              <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Topic</h2>
+              <p className="text-sm font-medium text-foreground">{content.strandName}</p>
+            </div>
+          )}
+          {content.subStrandName && (
+            <div className="mb-6">
+              <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-wider">Subtopic</h2>
+              <p className="text-sm font-medium text-foreground">{content.subStrandName}</p>
+            </div>
+          )}
+          <h2 className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-2">Today&apos;s Lesson</h2>
           <h3 className="text-3xl font-bold tracking-tight mb-4">{content.topic}</h3>
           
           {content.learningObjective && (
