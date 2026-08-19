@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, text, integer, boolean, timestamp, unique, index } from 'drizzle-orm/pg-core';
+import { pgTable, uuid, varchar, text, integer, boolean, timestamp, unique, index, pgEnum } from 'drizzle-orm/pg-core';
 import { relations } from 'drizzle-orm';
 
 export const countries = pgTable('countries', {
@@ -6,6 +6,23 @@ export const countries = pgTable('countries', {
   name: varchar('name', { length: 100 }).notNull(),
   code: varchar('code', { length: 3 }).notNull().unique(),
   createdAt: timestamp('created_at', { withTimezone: true }).defaultNow(),
+});
+
+export const contentSourceStatusEnum = pgEnum('content_source_status', ['OFFICIAL_NACCA', 'UNVERIFIED']);
+export const sequenceSourceStatusEnum = pgEnum('sequence_source_status', ['OFFICIAL_NACCA_SEQUENCE', 'LESSONPAL_GENERATED_SEQUENCE', 'UNVERIFIED']);
+export const supportSourceStatusEnum = pgEnum('support_source_status', ['OFFICIAL_NACCA', 'LESSONPAL_GENERATED', 'TEACHER_UPLOADED', 'UNVERIFIED']);
+
+export const curriculumSources = pgTable('curriculum_sources', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  title: varchar('title', { length: 300 }).notNull(),
+  sourceType: varchar('source_type', { length: 100 }),
+  urlOrReference: text('url_or_reference'),
+  versionYear: varchar('version_year', { length: 50 }),
+  dateImported: timestamp('date_imported', { withTimezone: true }).defaultNow(),
+}, (table) => {
+  return {
+    unqSourceIdentity: unique('curriculum_sources_identity_unq').on(table.title, table.versionYear),
+  };
 });
 
 export const curricula = pgTable('curricula', {
@@ -18,6 +35,7 @@ export const curricula = pgTable('curricula', {
 }, (table) => {
   return {
     countryIdIdx: index('curricula_country_id_idx').on(table.countryId),
+    unqCurriculumIdentity: unique('curricula_identity_unq').on(table.countryId, table.name, table.version),
   };
 });
 
@@ -30,6 +48,7 @@ export const academicLevels = pgTable('academic_levels', {
 }, (table) => {
   return {
     curriculumIdIdx: index('academic_levels_curriculum_id_idx').on(table.curriculumId),
+    unqAcademicLevelIdentity: unique('academic_levels_identity_unq').on(table.curriculumId, table.name),
   };
 });
 
@@ -43,6 +62,7 @@ export const classLevels = pgTable('class_levels', {
 }, (table) => {
   return {
     academicLevelIdIdx: index('class_levels_academic_level_id_idx').on(table.academicLevelId),
+    unqClassLevelIdentity: unique('class_levels_identity_unq').on(table.academicLevelId, table.name),
   };
 });
 
@@ -55,6 +75,7 @@ export const subjects = pgTable('subjects', {
 }, (table) => {
   return {
     curriculumIdIdx: index('subjects_curriculum_id_idx').on(table.curriculumId),
+    unqSubjectIdentity: unique('subjects_identity_unq').on(table.curriculumId, table.name),
   };
 });
 
@@ -80,6 +101,7 @@ export const academicTerms = pgTable('academic_terms', {
 }, (table) => {
   return {
     curriculumIdIdx: index('academic_terms_curriculum_id_idx').on(table.curriculumId),
+    unqTermIdentity: unique('academic_terms_identity_unq').on(table.curriculumId, table.termNumber),
   };
 });
 
@@ -95,6 +117,7 @@ export const strands = pgTable('strands', {
   return {
     subjectIdIdx: index('strands_subject_id_idx').on(table.subjectId),
     classLevelIdIdx: index('strands_class_level_id_idx').on(table.classLevelId),
+    unqStrandIdentity: unique('strands_identity_unq').on(table.subjectId, table.classLevelId, table.sortOrder),
   };
 });
 
@@ -108,6 +131,7 @@ export const subStrands = pgTable('sub_strands', {
 }, (table) => {
   return {
     strandIdIdx: index('sub_strands_strand_id_idx').on(table.strandId),
+    unqSubStrandIdentity: unique('sub_strands_identity_unq').on(table.strandId, table.sortOrder),
   };
 });
 
@@ -121,6 +145,7 @@ export const contentStandards = pgTable('content_standards', {
 }, (table) => {
   return {
     subStrandIdIdx: index('content_standards_sub_strand_id_idx').on(table.subStrandId),
+    unqContentStandardIdentity: unique('content_standards_identity_unq').on(table.subStrandId, table.code),
   };
 });
 
@@ -137,6 +162,7 @@ export const indicators = pgTable('indicators', {
   return {
     contentStandardIdIdx: index('indicators_content_standard_id_idx').on(table.contentStandardId),
     academicTermIdIdx: index('indicators_academic_term_id_idx').on(table.academicTermId),
+    unqIndicatorIdentity: unique('indicators_identity_unq').on(table.contentStandardId, table.code),
   };
 });
 

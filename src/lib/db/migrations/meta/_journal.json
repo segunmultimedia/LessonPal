@@ -15,6 +15,20 @@
       "when": 1786991001140,
       "tag": "0001_flawless_gambit",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1787000494447,
+      "tag": "0002_graceful_dust",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1787007475822,
+      "tag": "0003_worried_christian_walker",
+      "breakpoints": true
     }
   ]
 }

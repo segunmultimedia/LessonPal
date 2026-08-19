@@ -1,0 +1,17 @@
+{
+  "BASIC 4": {
+    "indicators": 11,
+    "sessions": 18,
+    "terms": { "1": 5, "2": 8, "3": 5 }
+  },
+  "BASIC 5": {
+    "indicators": 12,
+    "sessions": 20,
+    "terms": { "1": 8, "2": 7, "3": 5 }
+  },
+  "BASIC 6": {
+    "indicators": 9,
+    "sessions": 14,
+    "terms": { "1": 5, "2": 5, "3": 4 }
+  }
+}
