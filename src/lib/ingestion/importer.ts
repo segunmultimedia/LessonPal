@@ -194,7 +194,7 @@ export class CurriculumImporter {
           eq(curriculumLessons.subjectId, subject.id)
         ));
 
-        const lessonMap = new Map(existingLessons.map(l => 
+        const lessonMap = new Map<string, { academicTermId: string | null, weekNumber: number | null, lessonNumber: number, indicatorId: string | null, id: string }>(existingLessons.map((l: { academicTermId: string | null, weekNumber: number | null, lessonNumber: number, indicatorId: string | null, id: string }) => 
           [`${l.academicTermId}-${l.weekNumber}-${l.lessonNumber}-${l.indicatorId}`, l]
         ));
 
@@ -253,7 +253,7 @@ export class CurriculumImporter {
           title: lessonExercises.title
         }).from(lessonExercises);
         
-        const exerciseMap = new Map(existingExs.map(e => [`${e.lessonId}-${e.title}`, e.id]));
+        const exerciseMap = new Map(existingExs.map((e: { id: string, lessonId: string | null, title: string }) => [`${e.lessonId}-${e.title}`, e.id]));
 
         for (const session of supportList) {
           const key = `${termIds[session.term]}-${session.week}-${session.lessonNumber}-${indicatorMap[session.indicatorCode]}`;
@@ -300,7 +300,7 @@ export class CurriculumImporter {
            exId: exerciseQuestions.exerciseId,
            sort: exerciseQuestions.sortOrder
         }).from(exerciseQuestions);
-        const questionMap = new Set(existingQs.map(q => `${q.exId}-${q.sort}`));
+        const questionMap = new Set(existingQs.map((q: { id: string, exId: string | null, sort: number | null }) => `${q.exId}-${q.sort}`));
 
         for (const [exId, questions] of sessionExercises.entries()) {
           for (const q of questions) {

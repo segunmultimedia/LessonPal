@@ -1,8 +1,9 @@
 import { config } from 'dotenv';
 import { join } from 'path';
-import { CurriculumVerifier } from './src/lib/ingestion/verifier';
-import { db } from './src/lib/db';
-import { classLevels, curriculumLessons } from './src/lib/db/schema';
+import { CurriculumVerifier } from '../src/lib/ingestion/verifier';
+import { db } from '../src/lib/db';
+import { curriculumLessons } from '../src/lib/db/schema/curriculum_library';
+import { classLevels } from '../src/lib/db/schema/curriculum';
 import { eq } from 'drizzle-orm';
 
 config({ path: join(process.cwd(), '.env.local') });
